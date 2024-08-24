@@ -40,7 +40,7 @@ jobs:
 
       - name: 🚀 Deploy with rsync
         run: |
-          rsync --archive --delete --stats -e "ssh -o UserKnownHostsFile=~/.ssh/known_hosts" 'public/' ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_DEST }}
+          rsync --archive --delete --stats -e "ssh -o UserKnownHostsFile=~/.ssh/known_hosts" 'public/' ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/nedge/apps/quartz-obsidian-publish/public/
 
       - name: 🐳 Restart Docker Container
         uses: appleboy/ssh-action@master
