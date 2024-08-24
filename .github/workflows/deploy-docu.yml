@@ -17,7 +17,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build site
-        run: npx quartz build
+        run: |
+          npx quartz build
+          echo "Contents of current directory:"
+          ls -R
+          echo "Contents of public directory:"
+          ls -R public || echo "public directory not found"
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -25,5 +30,10 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            echo "Contents of destination directory before copy:"
+            ls -R /home/nedge/apps/quartz-obsidian-publish/public/
             rm -rf /home/nedge/apps/quartz-obsidian-publish/public/*
             scp -r ${{ github.workspace }}/public/* /home/nedge/apps/quartz-obsidian-publish/public/
+            echo "Contents of destination directory after copy:"
+            ls -R /home/nedge/apps/quartz-obsidian-publish/public/
+            docker-compose -f /home/nedge/apps/quartz-obsidian-publish/docker-compose.yml up -d --force-recreate
