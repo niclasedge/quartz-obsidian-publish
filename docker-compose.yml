@@ -1,0 +1,23 @@
+services:
+  lighttpd:
+    container_name: quartz-obsidian-publish
+    volumes:
+      - ./build:/var/www/html:ro
+    image: rtsp/lighttpd
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      ## Enable Trafik
+      - "traefik.enable=true"
+      ## Traefik Entry-Point HTTP
+      - "traefik.http.routers.docusaurus-host-secure.entrypoints=websecure"
+      ## Traefik Host-Rule
+      - "traefik.http.routers.docusaurus-host-secure.rule=Host(`docu.niclasedge.com`)"
+      ## Traefik Enable TLS
+      #- "traefik.http.routers.docusaurus-host-secure.tls=true"
+      ## Traefik Network
+      - "traefik.docker.network=proxy"
+networks:
+  proxy:
+    external: true
