@@ -1,5 +1,5 @@
 ---
-title: Azure Infrastructure Update June 7, 2023
+title: Az Infra Update June 7, 2023
 description: description
 authors: niclasedge
 images: null

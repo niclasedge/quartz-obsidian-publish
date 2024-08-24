@@ -1,5 +1,5 @@
 ---
-title: Azure Infrastructure Update July 12, 2024
+title: Az Infra Update July 12, 2024
 description: A summary of recent Azure infrastructure updates and announcements
 authors: niclasedge
 images: null
