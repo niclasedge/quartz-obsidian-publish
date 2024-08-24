@@ -2,7 +2,7 @@ services:
   lighttpd:
     container_name: quartz-obsidian-publish
     volumes:
-      - ./build:/var/www/html:ro
+      - ./public:/var/www/html:ro
     image: rtsp/lighttpd
     restart: unless-stopped
     networks:

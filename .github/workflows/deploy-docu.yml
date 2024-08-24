@@ -1,45 +1,50 @@
-name: Deploy to Server
-
+name: Build and Deploy Quartz Site
 on:
+  workflow_dispatch:
   push:
     branches:
       - v4 # or whatever your main branch is named
 
 jobs:
   build-and-deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
+      - name: 🛒 Checkout
+        uses: actions/checkout@v4
+
+      - name: ✨ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Install dependencies
+
+      - name: ✨ Install Dependencies
         run: |
           npm ci
           npm list
-      - name: Build site
+
+      - name: 🛠️ Build Quartz Site
         run: |
-          echo "Current working directory: $(pwd)"
-          echo "Contents of current directory:"
-          ls -la
           echo "Building site..."
           npx quartz build
-          echo "Build complete. Contents of current directory:"
-          ls -la
-          echo "Contents of public directory:"
-          ls -la public || echo "public directory not found"
-      - name: Deploy to server
+          echo "Build complete. Contents of public directory:"
+          ls -la public
+
+      - name: 🔑 Install SSH Key
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: 🚀 Deploy with rsync
+        run: |
+          rsync --archive --delete --stats 'public/' nedge@202.61.247.130/home/nedge/apps/quartz-obsidian-publish/public/
+
+      - name: 🐳 Restart Docker Container
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          key: ${{ secrets.PRIVATE_SSH_KEY }}
           script: |
-            echo "Contents of destination directory before copy:"
-            ls -la /home/***/apps/quartz-obsidian-publish/public/
-            echo "Attempting to copy files..."
-            scp -r ${{ github.workspace }}/public/* /home/***/apps/quartz-obsidian-publish/public/ || echo "Copy failed"
-            echo "Contents of destination directory after copy:"
-            ls -la /home/***/apps/quartz-obsidian-publish/public/
             docker-compose -f /home/***/apps/quartz-obsidian-publish/docker-compose.yml up -d --force-recreate
