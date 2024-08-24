@@ -23,7 +23,7 @@ jobs:
         run: |
           echo "Building site..."
           npx quartz build
-          echo "Build complete. Contents of public directory:"
+          echo "Build complete. Contents of public directory: "
           ls -la public
       - name: 🔑 Setup and Diagnose SSH
         run: |
