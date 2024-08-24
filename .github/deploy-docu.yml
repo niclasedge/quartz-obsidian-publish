@@ -67,3 +67,6 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
           scp -r public/* $SERVER_USERNAME@$SERVER_HOST:/home/$SERVER_USERNAME/apps/quartz-obsidian-publish/public/
+
+npx quartz build
+scp -r /Users/niclasedge/GITHUB/quartz/public/* nedge@202.61.247.130:/home/nedge/apps/quartz-obsidian-publish/public/
