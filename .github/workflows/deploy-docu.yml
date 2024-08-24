@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - v4 # or whatever your main branch is named
+      - main # or whatever your main branch is named
 
 jobs:
   build-and-deploy:
@@ -30,15 +30,17 @@ jobs:
           echo "Build complete. Contents of public directory:"
           ls -la public
 
-      - name: 🔑 Install SSH Key
+      - name: 🔑 Setup SSH
         run: |
-          install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: 🚀 Deploy with rsync
         run: |
-          rsync --archive --delete --stats 'public/' nedge@202.61.247.130:/home/nedge/apps/quartz-obsidian-publish/public/
+          rsync --archive --delete --stats -e "ssh -o UserKnownHostsFile=~/.ssh/known_hosts" 'public/' ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_DEST }}
 
       - name: 🐳 Restart Docker Container
         uses: appleboy/ssh-action@master
