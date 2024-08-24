@@ -1,0 +1,28 @@
+facebook:
+  label: Facebook
+  permalink: /facebook
+  description: Facebook tag description
+python:
+  label: Python
+  permalink: /python
+  description: Python tag description
+docusaurus:
+  label: Docusaurus
+  permalink: /docusaurus
+  description: Docusaurus tag description
+excel:
+  label: Excel
+  permalink: /Excel
+  description: Excel tag description
+google:
+  label: Google
+  permalink: /google
+  description: Google tag description
+azure:
+  label: Azure
+  permalink: /azure
+  description: Azure tag description
+networking:
+  label: Networking
+  permalink: /networking
+  description: Networking tag description
