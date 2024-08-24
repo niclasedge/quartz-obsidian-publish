@@ -15,14 +15,20 @@ jobs:
         with:
           node-version: "22"
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm list
       - name: Build site
         run: |
-          npx quartz build
+          echo "Current working directory: $(pwd)"
           echo "Contents of current directory:"
-          ls -R
+          ls -la
+          echo "Building site..."
+          npx quartz build
+          echo "Build complete. Contents of current directory:"
+          ls -la
           echo "Contents of public directory:"
-          ls -R public || echo "public directory not found"
+          ls -la public || echo "public directory not found"
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -31,9 +37,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             echo "Contents of destination directory before copy:"
-            ls -R /home/nedge/apps/quartz-obsidian-publish/public/
-            rm -rf /home/nedge/apps/quartz-obsidian-publish/public/*
-            scp -r ${{ github.workspace }}/public/* /home/nedge/apps/quartz-obsidian-publish/public/
+            ls -la /home/***/apps/quartz-obsidian-publish/public/
+            echo "Attempting to copy files..."
+            scp -r ${{ github.workspace }}/public/* /home/***/apps/quartz-obsidian-publish/public/ || echo "Copy failed"
             echo "Contents of destination directory after copy:"
-            ls -R /home/nedge/apps/quartz-obsidian-publish/public/
-            docker-compose -f /home/nedge/apps/quartz-obsidian-publish/docker-compose.yml up -d --force-recreate
+            ls -la /home/***/apps/quartz-obsidian-publish/public/
+            docker-compose -f /home/***/apps/quartz-obsidian-publish/docker-compose.yml up -d --force-recreate
