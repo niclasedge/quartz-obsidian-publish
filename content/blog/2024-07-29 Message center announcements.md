@@ -1,5 +1,5 @@
 ---
-title: Message center announcements 29.7.24
+title: Message center news 29.7.24
 date: 07/29/2024 14:39:06
 authors:
 - niclasedge

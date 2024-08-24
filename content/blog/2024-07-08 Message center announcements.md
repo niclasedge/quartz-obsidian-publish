@@ -1,5 +1,5 @@
 ---
-title: Message center announcements 08.7.24
+title: Message center news 08.7.24
 date: 07/08/2024 14:39:06
 authors:
 - niclasedge
