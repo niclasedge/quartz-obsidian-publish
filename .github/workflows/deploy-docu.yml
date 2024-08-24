@@ -1,66 +1,55 @@
-name: Build and Deploy Quartz Site
+name: Deploy Quartz site to GitHub Pages and Remote Server
+
 on:
-  workflow_dispatch:
   push:
     branches:
-      - v4 # or whatever your main branch is named
+      - v4
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build-and-deploy:
-    name: Build and Deploy
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for git info
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build Quartz
+        run: npx quartz build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: 🛒 Checkout
-        uses: actions/checkout@v4
-      - name: ✨ Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
         with:
-          node-version: "22"
-      - name: ✨ Install Dependencies
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Deploy to Remote Server
         run: |
-          npm ci
-          npm list
-      - name: 🛠️ Build Quartz Site
-        run: |
-          echo "Building site..."
-          npx quartz build
-          echo "Build complete. Contents of public directory: "
-          ls -la public
-      - name: 🔑 Setup and Diagnose SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa_original
-          chmod 600 ~/.ssh/id_rsa_original
-
-          echo "Original private key format:"
-          head -n 1 ~/.ssh/id_rsa_original
-
-          # Convert key if necessary
-          if [[ $(head -n 1 ~/.ssh/id_rsa_original) == "-----BEGIN OPENSSH PRIVATE KEY-----" ]]; then
-            cp ~/.ssh/id_rsa_original ~/.ssh/id_rsa
-          else
-            ssh-keygen -p -f ~/.ssh/id_rsa_original -m pem -N "" > ~/.ssh/id_rsa
-          fi
-
-          chmod 600 ~/.ssh/id_rsa
-          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-          echo "Final private key format:"
-          head -n 1 ~/.ssh/id_rsa
-
-          echo "SSH key details:"
-          ssh-keygen -lf ~/.ssh/id_rsa
-
-          echo "Testing SSH connection:"
-          ssh -v -o UserKnownHostsFile=~/.ssh/known_hosts ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} exit
-      - name: 🚀 Deploy with rsync
-        run: |
-          rsync --archive --delete --stats -v -e "ssh -v -o UserKnownHostsFile=~/.ssh/known_hosts" 'public/' ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/nedge/apps/quartz-obsidian-publish/public/
-      - name: 🐳 Restart Docker Container
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.PRIVATE_SSH_KEY }}
-          script: |
-            docker-compose -f /home/nedge/apps/quartz-obsidian-publish/docker-compose.yml up -d --force-recreate
+          scp -r public/* nedge@202.61.247.130:/home/nedge/apps/quartz-obsidian-publish/public/
