@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main # or whatever your main branch is named
+      - v4 # or whatever your main branch is named
 
 jobs:
   build-and-deploy:
