@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: quartz-obsidian-publish
+  description: Quartz Obsidian Publish
+  annotations:
+    github.com/project-slug: niclasedge/quartz-obsidian-publish
+  tags:
+    - obsidian
+    - documentation
+spec:
+  type: website
+  lifecycle: production
+  owner: user:niclasedge
