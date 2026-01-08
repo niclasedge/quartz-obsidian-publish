@@ -5,6 +5,7 @@ metadata:
   description: Quartz Obsidian Publish
   annotations:
     github.com/project-slug: niclasedge/quartz-obsidian-publish
+    backstage.io/techdocs-ref: dir:.
   tags:
     - obsidian
     - documentation
